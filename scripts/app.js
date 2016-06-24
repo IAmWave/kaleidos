@@ -7,7 +7,7 @@ define(["jquery", "particles", "coloring"], function($, particles, coloring) {
         ctx = canvas.getContext("2d");
         canvas.width = ctx.canvas.clientWidth;
         canvas.height = ctx.canvas.clientHeight;
-        particles.init(canvas.width, canvas.height, 600);
+        particles.init(canvas.width, canvas.height, 800);
 
         var loop = function() {
             var diagram = particles.step();

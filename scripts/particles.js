@@ -1,4 +1,4 @@
-define(["lodash", "voronoi", "options"], function(_, _voronoi, options) {
+define(["lodash", "voronoi", "options", "lloyd"], function(_, _voronoi, options, lloyd) {
     return {
         voronoi: new Voronoi(),
         sites: [],
@@ -20,22 +20,20 @@ define(["lodash", "voronoi", "options"], function(_, _voronoi, options) {
                 res.yv = Math.sin(angle) * v;
                 
                 var r = Math.floor(127 * (1 + Math.sin((res.x + res.y * 3) / 70)));
-                res.color = 'rgb(' + r + ',0,0)';
+                res.color = 'rgb(' + r + ',0,70)';
                 return res;
             });
         },
 
         step: function() {
+            if(this.diagram) lloyd.relax(this.sites, this.diagram);
             var parent = this;
             _.forEach(this.sites, function(site){
                 var margin = options.MARGIN * parent.width;
-                site.x = (site.x + margin + site.xv + parent.width + 2 * margin) % (parent.width + 2 * margin) - margin;
-                site.y = (site.y + margin + site.yv + parent.height + 2 * margin) % (parent.height + 2 * margin) - margin;
-                //site.y = (site.y + site.yv + parent.height) % parent.height;
+                site.x = (site.x + site.xv + parent.width + 3 * margin) % (parent.width + 2 * margin) - margin;
+                site.y = (site.y + site.yv + parent.height + 3 * margin) % (parent.height + 2 * margin) - margin;
             });
-            //this.sites[0].x+=3;
-            // pass an object which exhibits xl, xr, yt, yb properties. The bounding
-            // box will be used to connect unbound edges, and to close open cells
+
             this.voronoi.recycle(this.diagram);
             this.diagram = this.voronoi.compute(this.sites, {
                 xl: 0,
@@ -43,6 +41,7 @@ define(["lodash", "voronoi", "options"], function(_, _voronoi, options) {
                 yt: 0,
                 yb: this.height
             });
+            
             return this.diagram;
         },
     };

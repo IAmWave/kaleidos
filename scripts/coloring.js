@@ -1,8 +1,6 @@
 define(["lodash"], function(_) {
     return {
-        x: 3,
         step: function() {
-            this.x += 3;
         },
 
         draw: function(ctx, diagram) {
@@ -14,22 +12,17 @@ define(["lodash"], function(_) {
             ctx.fill();
             ctx.strokeStyle = '#888';
             ctx.stroke();
-            // voronoi
-            if (!diagram) {
-                return;
-            }
-
+            
             _.forEach(diagram.cells, function(cell) {
-                var halfedges = cell.halfedges,
-                    nHalfedges = halfedges.length;
-                if (nHalfedges > 2) {
-                    v = halfedges[0].getStartpoint();
+                if (cell.halfedges.length > 2) {
+                    var v = cell.halfedges[0].getStartpoint();
                     ctx.beginPath();
                     ctx.moveTo(v.x, v.y);
-                    for (var iHalfedge = 0; iHalfedge < nHalfedges; iHalfedge++) {
-                        v = halfedges[iHalfedge].getEndpoint();
+                    _.forEach(cell.halfedges, function(halfedge){
+                        var v = halfedge.getEndpoint();
                         ctx.lineTo(v.x, v.y);
-                    }
+                    });
+
                     if (cell.site.color) {
                         ctx.fillStyle = cell.site.color;
                     } else {
@@ -41,34 +34,15 @@ define(["lodash"], function(_) {
                     ctx.stroke();
                 }
             });
-
-            // edges
-            /*ctx.beginPath();
-            ctx.strokeStyle = '#000';
-            _.forEach(diagram.edges, function(edge){
-                ctx.moveTo(edge.va.x, edge.va.y);
-                ctx.lineTo(edge.vb.x, edge.vb.y);
-            });
-            ctx.stroke();
-            */
-
-            /*
-            // edges - endpoints
-            ctx.beginPath();
-            ctx.fillStyle = 'red';
-            _.forEach(diagram.vertices, function(v) {
-                ctx.rect(v.x - 1, v.y - 1, 3, 3);
-            });
-            ctx.fill();
-            */
-
-            // sites
-            /*ctx.beginPath();
-            ctx.fillStyle = '#fff';
-            _.forEach(diagram.cells, function(cell) {
-                ctx.rect(cell.site.x - 2 / 3, cell.site.y - 2 / 3, 2, 2);
-            });
-            ctx.fill();*/
+            if(0){
+                // sites
+                ctx.beginPath();
+                ctx.fillStyle = '#fff';
+                _.forEach(diagram.cells, function(cell) {
+                    ctx.rect(cell.site.x - 2 / 3, cell.site.y - 2 / 3, 2, 2);
+                });
+                ctx.fill();
+            }
         }
     }
 });
