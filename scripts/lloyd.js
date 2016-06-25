@@ -1,12 +1,12 @@
 // Adapted from Raymond Hill's Voronoi Demo 5: http://www.raymondhill.net/voronoi/rhill-voronoi-demo5.html
-define(["lodash", "options"], function(_, options) {
+define(["lodash", "util"], function(_, util) {
     return {
         relax: function(sites, diagram) {
             var parent = this;
             _.forEach(diagram.cells, function(cell) {
                 var next = parent.cellCentroid(cell);
-                cell.site.x = (1 - options.LLOYD_WEIGHT) * cell.site.x + options.LLOYD_WEIGHT * next.x;
-                cell.site.y = (1 - options.LLOYD_WEIGHT) * cell.site.y + options.LLOYD_WEIGHT * next.y;
+                cell.site.x = (1 - util.LLOYD_WEIGHT) * cell.site.x + util.LLOYD_WEIGHT * next.x;
+                cell.site.y = (1 - util.LLOYD_WEIGHT) * cell.site.y + util.LLOYD_WEIGHT * next.y;
             });
         },
 

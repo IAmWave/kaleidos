@@ -1,4 +1,5 @@
-define(["lodash", "voronoi", "options", "lloyd"], function(_, _voronoi, options, lloyd) {
+"use strict";
+define(["lodash", "voronoi", "util", "lloyd"], function(_, _voronoi, util, lloyd) {
     return {
         voronoi: new Voronoi(),
         sites: [],
@@ -11,16 +12,14 @@ define(["lodash", "voronoi", "options", "lloyd"], function(_, _voronoi, options,
             this.height = height;
             this.sites = _.times(nSites, function() {
                 var res = {
-                    x: Math.floor(Math.random() * width),
-                    y: Math.floor(Math.random() * height),
+                    x: _.random(width),
+                    y: _.random(height),
                 };
-                var angle = Math.random() * Math.PI * 2;
-                var v = options.SPEED_MIN + Math.random() * (options.SPEED_MAX - options.SPEED_MIN) * width;
+                var angle = _.random(Math.PI * 2, true);
+                var v = _.random(util.SPEED_MIN, util.SPEED_MAX, true) * width;
                 res.xv = Math.cos(angle) * v;
                 res.yv = Math.sin(angle) * v;
-                
-                var r = Math.floor(127 * (1 + Math.sin((res.x + res.y * 3) / 70)));
-                res.color = 'rgb(' + r + ',0,70)';
+                res.color = res.displayColor = [0, 0, 0];
                 return res;
             });
         },
@@ -29,7 +28,7 @@ define(["lodash", "voronoi", "options", "lloyd"], function(_, _voronoi, options,
             if(this.diagram) lloyd.relax(this.sites, this.diagram);
             var parent = this;
             _.forEach(this.sites, function(site){
-                var margin = options.MARGIN * parent.width;
+                var margin = util.MARGIN * parent.width;
                 site.x = (site.x + site.xv + parent.width + 3 * margin) % (parent.width + 2 * margin) - margin;
                 site.y = (site.y + site.yv + parent.height + 3 * margin) % (parent.height + 2 * margin) - margin;
             });

@@ -1,34 +1,22 @@
-define(["lodash"], function (_) {
-    var util = {
-        INF: 1e9,
-        tileSize: 40,
-        size: 15,
-        row: 5,
-        Tile: Object.freeze({
-            A: "#F00",
-            B: "#00F",
-            NONE: "#FFF"
-        })
-    };
+define(function () {
+    // the lengths are specified relative to canvas width
+    return {
+        SPEED_MIN: 0.0000,
+        SPEED_MAX: 0.0008,
+        MARGIN: 0.07,
+        LLOYD_WEIGHT: 0.1,
+        N_SITES: 800,
+        //--------- image options ---------
+        N_IMAGES: 10,
+        IMAGE_SIZE: 500,
+        SIGMOID_RANGE: 2, // what portion of the sigmoid function is used to interpolate transitions: -SIGMOID_RANGE to SIGMOID_RANGE. Lower => more linear
+        SWITCH_TIME: 17500,
+        TRANSITION_DELAY_MAX: 1500,
+        TRANSITION_LENGTH_MIN: 1000,
+        TRANSITION_LENGTH_MAX: 4000,
 
-    util.equals = function (a, b) {
-        return JSON.stringify(a) === JSON.stringify(b);
+        sigmoid: function(x) {
+            return 1 / (1 + Math.exp(-x));
+        },
     };
-
-    util.emptyPos = function () {
-        return _.chain(_.range(util.size))
-            .map(function () {
-                return _.map(_.range(util.size), function () {
-                    return util.Tile.NONE;
-                });
-            }).value();
-    };
-
-    util.makeMove = function (pos, x, y, p) {
-        var res = _.cloneDeep(pos);
-        res[x][y] = (p === 0) ? util.Tile.A : util.Tile.B;
-        return res;
-    };
-
-    return util;
 });

@@ -1,4 +1,5 @@
-define(["jquery", "particles", "coloring"], function($, particles, coloring) {
+"use strict";
+define(["jquery", "particles", "coloring", "util"], function($, particles, coloring, util) {
     var canvas, ctx;
 
 
@@ -7,12 +8,13 @@ define(["jquery", "particles", "coloring"], function($, particles, coloring) {
         ctx = canvas.getContext("2d");
         canvas.width = ctx.canvas.clientWidth;
         canvas.height = ctx.canvas.clientHeight;
-        particles.init(canvas.width, canvas.height, 800);
+        coloring.init();
+        particles.init(canvas.width, canvas.height, util.N_SITES);
 
-        var loop = function() {
-            var diagram = particles.step();
+        var loop = function(timestamp) {
+            var diagram = particles.step(timestamp);
             //console.log("calculation time: "+diagram.execTime);
-            coloring.step();
+            coloring.step(timestamp, ctx, diagram.cells);
             coloring.draw(ctx, diagram);
             requestAnimationFrame(loop);
         }
