@@ -9,7 +9,7 @@ for FILE in *; do
             -quality 50 \
             -resize 500x500! \
             -blur 0x7 \
-            -modulate 100,150 \
+            -modulate 100,175 \
             "../$FILE"
     fi
 done

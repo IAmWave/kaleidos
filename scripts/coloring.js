@@ -6,7 +6,7 @@ define(["jquery", "lodash", "util"], function($, _, util) {
         iCtx: null,
         imageData: null,
         switchTime: 0,
-        curImage: -1,
+        curImage: _.random(util.N_IMAGES - 1),
 
         init: function() {
             this.iCanvas = $("<canvas>")
@@ -23,8 +23,7 @@ define(["jquery", "lodash", "util"], function($, _, util) {
                 res.src = "img/" + (n + 1) + ".jpg";
                 return res;
             });
-            this.images = _.shuffle(this.images);
-
+            
             util.SIGMOID_MIN = util.sigmoid(-util.SIGMOID_RANGE);
         },
 
