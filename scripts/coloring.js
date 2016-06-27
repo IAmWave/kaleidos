@@ -7,6 +7,10 @@ define(["jquery", "lodash", "util"], function($, _, util) {
         imageData: null,
         switchTime: 0,
         curImage: _.random(util.N_IMAGES - 1),
+        //fps
+        lastTime: 0,
+        delays: _.times(util.FRAMES_SAVED, _.constant(0)),
+        execs: _.times(util.FRAMES_SAVED, _.constant(0)),
 
         init: function() {
             this.iCanvas = $("<canvas>")
@@ -27,7 +31,7 @@ define(["jquery", "lodash", "util"], function($, _, util) {
             util.SIGMOID_MIN = util.sigmoid(-util.SIGMOID_RANGE);
         },
 
-        step: function(t, ctx, cells) {
+        step: function(t, ctx, cells, execTime) {
             if (t > this.switchTime) {
                 var nextImage = (this.curImage + 1) % this.images.length;
                 if (!this.images[nextImage].ready) { // wait until image is ready
@@ -62,6 +66,11 @@ define(["jquery", "lodash", "util"], function($, _, util) {
                 }
                 site.inTransition = t > site.transitionStart && t < site.transitionEnd;
             });
+            this.delays.push(Math.min(1000, t - this.lastTime));
+            this.delays = _.tail(this.delays);
+            this.lastTime = t;
+            this.execs.push(execTime);
+            this.execs = _.tail(this.execs);
         },
 
         getColorAt: function(x, y) {
@@ -73,6 +82,7 @@ define(["jquery", "lodash", "util"], function($, _, util) {
 
         draw: function(ctx, diagram) {
             var parent = this;
+            var wasted = 0;
             _.forEach(diagram.cells, function(cell) {
                 if (cell.halfedges.length > 2) {
                     var v = cell.halfedges[0].getStartpoint();
@@ -84,19 +94,40 @@ define(["jquery", "lodash", "util"], function($, _, util) {
                     });
                     var c = cell.site.displayColor;
                     ctx.fillStyle = 'rgb(' + Math.floor(c[0]) + ',' + Math.floor(c[1]) + ',' + Math.floor(c[2]) + ')';
-                    ctx.strokeStyle = ctx.fillStyle;
                     ctx.fill();
-                    ctx.stroke();
                 }
+                if(cell.site.x < 0 || cell.site.y < 0 || cell.site.x >= ctx.canvas.width || cell.site.y >= ctx.canvas.height) wasted++;
             });
 
             if (0) { // show sites - debugging purposes
-                ctx.beginPath();
-                ctx.fillStyle = '#fff';
                 _.forEach(diagram.cells, function(cell) {
-                    ctx.rect(cell.site.x - 2 / 3, cell.site.y - 2 / 3, 2, 2);
+                    ctx.fillStyle = cell.pushing?'red':'white';
+                    ctx.fillRect(cell.site.x - 2 / 3, cell.site.y - 2 / 3, 2, 2);
+                });
+            }
+
+            if(util.SHOW_FPS){
+                ctx.clearRect(0, 0, 150, 100);
+                ctx.beginPath();
+                ctx.fillStyle = '#0f0';
+                _.forEach(this.delays, function(delay, i){
+                	ctx.rect(i, 0, 1, delay);
                 });
                 ctx.fill();
+                ctx.beginPath();
+                ctx.fillStyle = '#fff';
+                _.forEach(this.execs, function(exec, i){
+                    ctx.rect(i, 0, 1, exec);
+                });
+                ctx.fill();
+                ctx.fillStyle = '#fff';
+                ctx.fillText(Math.round(1000 / (_.sum(this.delays) / this.delays.length)) + " FPS", this.delays.length + 1, 11);
+                ctx.fillText(Math.round(1000 / (_.sum(this.execs) / this.execs.length)) + " FPS*", this.execs.length + 1, 21);
+                ctx.fillText("Wasted "+wasted, this.delays.length, 31);
+                
+                for (var i = 1; i <= 5; i++) {
+                    ctx.fillRect(0, i * 10, this.delays.length, 1);
+                }
             }
         }
     }

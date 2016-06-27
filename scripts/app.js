@@ -13,8 +13,7 @@ define(["jquery", "particles", "coloring", "util"], function($, particles, color
 
         var loop = function(timestamp) {
             var diagram = particles.step(timestamp);
-            //console.log("calculation time: "+diagram.execTime);
-            coloring.step(timestamp, ctx, diagram.cells);
+            coloring.step(timestamp, ctx, diagram.cells, diagram.execTime);
             coloring.draw(ctx, diagram);
             requestAnimationFrame(loop);
         }
